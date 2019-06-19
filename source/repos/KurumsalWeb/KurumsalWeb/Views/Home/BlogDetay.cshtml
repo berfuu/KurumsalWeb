@@ -1,0 +1,228 @@
+﻿@using KurumsalWeb.Models.Model
+@model  KurumsalWeb.Models.Model.Blog
+
+@{
+    ViewBag.Title = "BlogDetay";
+    Layout = "~/Views/Shared/_SiteLayout.cshtml";
+}
+
+
+
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+
+<section id="inner-headline">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-12">
+                <ul class="breadcrumb">
+                    <li><a href="#"><i class="fa fa-home"></i></a><i class="icon-angle-right"></i></li>
+                    <li class="active">Blog Detay</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</section>
+<section id="content">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8">
+                <article>
+                    <div class="post-image">
+                        <div class="post-heading">
+                            <h3><a href="/Home/BlogDetay/@Model.BlogId">@Model.Baslik</a></h3>
+                        </div>
+                        <div class="bottom-article">
+                            <ul class="meta-post">
+                                <li>
+                                    <i class="icon-folder-open"></i><a href="#"> @Model.Kategori.KategoriAd</a>
+                                    &nbsp;   &nbsp;  <span class="date">@Model.EklenmeTarihi.ToShortDateString()</span>
+                                </li>
+                                <a href="#Yorums">@Model.Yorums.Where(x => x.Onay == true).Count()<img src="/Content/SiteLayout/img/yorum.png" /></a>
+                                @if (ViewBag.IsMember == true)
+                                {
+                                    <a id="blogBegen" class="begen" href="javascript:void(0);" data-id="@Model.BlogId">@Model.Begeni<img src="/Content/SiteLayout/img/like.png" /></a>
+                                }
+                                @if (ViewBag.IsMember == false)
+                                {
+                                    <a id="blogBegen" class="begen" href="javascript:void(0);" data-id="@Model.BlogId">@Model.Begeni<img src="/Content/SiteLayout/img/like.png" /></a>
+                                }
+                                <a href="#">@Model.GoruntulenmeSayisi <img src="/Content/SiteLayout/img/view.png" /></a>
+
+                            </ul>
+                        </div>
+                        <img src="@Model.ResimURL" alt="@Model.Baslik" />
+                    </div>
+                    <p>
+                        @Html.Raw(Model.Icerik)
+                    </p>
+                </article>
+
+
+                @if (ViewBag.IsMember == true)
+                {
+                    <div class="row">
+                        <div class="col-md-8">
+                            <h3>Yorum Yap</h3>
+                            <form>
+                                <div>
+                                    <textarea typeof="text" id="icerik" placeholder="Yorumunuz" class="form-control"></textarea>
+                                    <br />
+                                    <button type="submit" class="btn btn-success" id="gonder" value="Yorum Yap">Yorum Yap</button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                }
+                @*<button class="button button-like">
+                        <i class="fa fa-heart"></i>
+                        <span>Like</span>
+                    </button>*@
+                <button type="button" class="btn btn-outline-success">
+                    <i class="fa fa-heart"></i>
+                    <span>Like</span>
+                </button>
+
+                <div class="row">
+                    <div>
+                        <h3>Blog Makale Yorumları</h3>
+                        @foreach (var item in Model.Yorums.OrderByDescending(x => x.YorumId).Where(x => x.Onay == true))
+                        {
+                            <div class="">
+                                <div style="display: inline; ">
+
+                                    <p style="display: inline;">@item.AdSoyad - @item.Eposta</p>
+                                    
+                                    <button type="button" class="btn btn-outline-success custom-like-btn" onclick="yorumBegen(@item.YorumId);">
+                                        <span style="margin-right: 5px;">@item.Begeni</span>
+                                        <i class="fa fa-heart"></i>
+                                    </button>
+                                </div>
+                                <p>@item.Icerik</p>
+                                <span class="date">@Model.EklenmeTarihi.ToShortDateString()</span>
+                                <hr />
+                            </div>
+
+                        }
+
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-4">
+                <aside class="right-sidebar">
+                    <div class="widget">
+                        <form class="form-search">
+                            <input class="form-control" type="text" placeholder="Search..">
+                        </form>
+                    </div>
+                    <div class="widget">
+                        <h5 class="widgetheading">Kategoriler</h5>
+                        @{
+                            Html.RenderAction("BlogKategoriPartical", "Home");
+                        }
+                    </div>
+                    <div class="widget">
+                        <h5 class="widgetheading">Son Blog Kayıtları</h5>
+                        <ul class="recent">
+                            @{
+                                Html.RenderAction("BlogKayitPartical", "Home");
+                            }
+                        </ul>
+                    </div>
+
+                </aside>
+            </div>
+        </div>
+    </div>
+</section>
+>
+<script src="~/Content/SiteLayout/js/jquery.js"></script>
+<script type="text/javascript">
+        //<link href="~/Content/Site.css" rel="stylesheet" />
+
+
+        //$(function() {
+        //    $('.button-like')
+        //        .bind('click', function(event) {
+        //            $(".button-like").toggleclass("liked");
+        //            console.log("ss");
+        //            var deger = number($("#counter").val()) + 1;
+        //            alert(deger);
+
+
+        //        })
+        //});
+
+
+        $(document).ready(function() {
+
+            $("#gonder").click(function() {
+                var adisoyadi = $("#adsoyad").val();
+                var epostasi = $("#eposta").val();
+                var yorumunuz = $("#icerik").val();
+                $.ajax({
+                    url: '/Home/YorumYap/',
+                    data: { icerik: yorumunuz, blogid: @Model.BlogId },
+                    type: 'POST',
+                    dataType: 'json',
+                    success: function(data) {
+                        if (data.toString() == "true") {
+                            alert("Yorumunuz eklendi, kontrol edildikten sonra yayınlanacaktır.");
+                        } else {
+                            alert(data);
+                        }
+
+                    }
+                });
+            });
+
+            $("#blogBegen").click(function(e) {
+                e.preventDefault();
+                $.ajax({
+                    url: '/Home/BlogBegen',
+                    data: { blogid: @Model.BlogId },
+                    type: 'POST',
+                    dataType: 'json',
+                    success: function(data) {
+                        if (data.toString() == "true") {
+                            location.reload();
+                        } else {
+                            alert(data);
+                        }
+
+                    }
+                });
+            });
+
+    });
+        function yorumBegen(yorumId) {
+            $.ajax({
+                url: '/Home/YorumBegen/',
+                data: {yorumid:yorumId },
+                type: 'POST',
+                dataType: 'json',
+                success: function (data) {
+                    if (data.toString() == "true") {
+                        location.reload();
+                    } else {
+                        alert(data);
+                    }
+                }
+            });
+        }
+
+</script>
+<script type="text/javascript">
+    $(document).ready(function() {
+        $.ajax({
+            url: '/Home/OkunmaArttir/',
+            data: { BlogId: @Model.BlogId },
+            type: 'POST',
+        });
+    } )
+
+</script>
+
+
+
+
+

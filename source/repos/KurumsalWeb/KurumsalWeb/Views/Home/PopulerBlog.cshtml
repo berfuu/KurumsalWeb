@@ -1,0 +1,13 @@
+﻿@model IEnumerable<KurumsalWeb.Models.Model.Blog>
+
+@{
+    Layout = null;
+}
+
+<div class="col-lg-12">
+    <ul> @foreach (var item in Model)
+         {
+             <li><a href="/Home/PopulerBlog/@item.BlogId">@item.Baslik (@item.GoruntulenmeSayisi)</a></li>
+         }
+    </ul>
+</div>
